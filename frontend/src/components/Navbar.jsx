@@ -1,6 +1,6 @@
 import React from 'react'
 import { TiThMenu } from "react-icons/ti";
-import IVModeling from './IV-Modeling';
+import SolarModeling from './SolarModeling';
 
 
 function Navbar() {
@@ -15,7 +15,7 @@ return (
             <input id="my-drawer" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content">
                 {/* Page content here */}
-                <IVModeling />
+                <SolarModeling />
             </div>
             <div className="drawer-side">
                 <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
