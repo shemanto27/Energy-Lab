@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 function SolarModeling() {
   const API_URL = "http://localhost:8000/api/solar/";
@@ -23,29 +23,38 @@ function SolarModeling() {
   const [numOfPanelPerString, setNumOfPanelPerString] = useState(2);
   const [numOfString, setNumOfString] = useState(2);
 
+  const [rawData, setRawData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
 
-  const formDataObject = {
-    latitude: latitude,
-    longitude: longitude,
-    altitude: altitude,
-    time_zone: timeZone,
-    module_db: moduleDb,
-    inverter_db: inverterDb,
-    temp_model: tempModel,
-    temp_type: tempType,
-    module_dataset: moduleDataset,
-    inverter_dataset: inverterDataset,
-    tilt_angle: tiltAngle,
-    azimuth_angle: azimuthAngle,
-    starting_time: startingTime,
-    ending_time: endingTime,
-    time_frequency: timeFrequency,
-    num_of_panel_per_string: numOfPanelPerString,
-    num_of_string: numOfString
-  };
+  useEffect(() => {
+    if (rawData.length > 0) {
+      // Group data by month and sum the values
+      const monthlyTotals = {};
+      
+      rawData.forEach(point => {
+        // Extract just the YYYY-MM part from the timestamp
+        const month = point.timestamp.substring(0, 7);
+        
+        if (!monthlyTotals[month]) {
+          monthlyTotals[month] = 0;
+        }
+        
+        // Add the value to the monthly total
+        monthlyTotals[month] += point.value;
+      });
 
-
-  const [chartData, setChartData] = useState([]);
+      // Convert to array format for Recharts
+      const monthlyChartData = Object.keys(monthlyTotals).map(month => ({
+        month: month,
+        totalPower: monthlyTotals[month]
+      }));
+      
+      // Sort by month
+      monthlyChartData.sort((a, b) => a.month.localeCompare(b.month));
+      
+      setMonthlyData(monthlyChartData);
+    }
+  }, [rawData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,9 +64,29 @@ function SolarModeling() {
       'Accept': 'application/json'
     };
 
+    const formDataObject = {
+      latitude: latitude,
+      longitude: longitude,
+      altitude: altitude,
+      time_zone: timeZone,
+      module_db: moduleDb,
+      inverter_db: inverterDb,
+      temp_model: tempModel,
+      temp_type: tempType,
+      module_dataset: moduleDataset,
+      inverter_dataset: inverterDataset,
+      tilt_angle: tiltAngle,
+      azimuth_angle: azimuthAngle,
+      starting_time: startingTime,
+      ending_time: endingTime,
+      time_frequency: timeFrequency,
+      num_of_panel_per_string: numOfPanelPerString,
+      num_of_string: numOfString
+    };
+
     try {
       const response = await axios.post(API_URL, formDataObject, { headers });
-      setChartData(response.data.ac_output); 
+      setRawData(response.data.ac_output); 
     } catch (error) {
       console.error("Error:", error.response ? error.response.data : error.message);
     }
@@ -74,23 +103,23 @@ function SolarModeling() {
             <fieldset className="fieldset flex flex-row">
               <div>
                 <legend className="fieldset-legend">Latitude</legend>
-                <input type="text" className="input" placeholder="Latitude" value={setLatitude}/>
+                <input type="text" className="input" placeholder="Latitude" value={latitude} onChange={(e) => setLatitude(e.target.value)} />
                 
                 <legend className="fieldset-legend">Altitude</legend>
-                <input type="text" className="input" placeholder="Altitude" />
+                <input type="text" className="input" placeholder="Altitude" value={altitude} onChange={(e) => setAltitude(e.target.value)} />
                 
                 <legend className="fieldset-legend">Timezone</legend>
-                <select defaultValue="Server location" className="select select-neutral">
+                <select value={timeZone} className="select select-neutral" onChange={(e) => setTimeZone(e.target.value)}>
                   <option disabled={true}>Timezone</option>
-                  <option>North America</option>
-                  <option>EU west</option>
-                  <option>South East Asia</option>
+                  <option value="US/Mountain">US/Mountain</option>
+                  <option value="US/Pacific">US/Pacific</option>
+                  <option value="US/Central">US/Central</option>
                 </select>
               </div>
               
               <div>
                 <legend className="fieldset-legend">Longitude</legend>
-                <input type="text" className="input" placeholder="Longitude" />
+                <input type="text" className="input" placeholder="Longitude" value={longitude} onChange={(e) => setLongitude(e.target.value)} />
               </div>
             </fieldset>
             
@@ -98,32 +127,24 @@ function SolarModeling() {
             <h3 className='text-3xl font-bold'>System Parameters</h3>
             <fieldset className="fieldset flex flex-row">
               <div>
-                <legend className="fieldset-legend">Number of Panels</legend>
-                <input type="text" className="input" placeholder="Number of Panels" />
+                <legend className="fieldset-legend">Number of Panels Per String</legend>
+                <input type="text" className="input" placeholder="Number of Panels" value={numOfPanelPerString} onChange={(e) => setNumOfPanelPerString(e.target.value)} />
                 
-                <legend className="fieldset-legend">Panel Type</legend>
-                <select defaultValue="Server location" className="select select-neutral">
-                  <option disabled={true}>Panel Type</option>
-                  <option>North America</option>
-                  <option>EU west</option>
-                  <option>South East Asia</option>
-                </select>
+                
               </div>
               
               <div>
-                <legend className="fieldset-legend">Panel Efficiency</legend>
-                <input type="text" className="input" placeholder="Panel Efficiency" />
+                <legend className="fieldset-legend">Number of String</legend>
+                <input type="text" className="input" placeholder="Number of String" value={numOfString} onChange={(e) => setNumOfString(e.target.value)} />
                 
-                <legend className="fieldset-legend">Panel Area</legend>
-                <input type="text" className="input" placeholder="Panel Area" />
               </div>
             </fieldset>
 
             <h3>Tilt Angle</h3>
-            <input type="range" min={0} max="90" value="90" className="range text-blue-300 [--range-bg:gray] [--range-thumb:blue] [--range-fill:0]" />
+            <input type="range" min={0} max="90" value={tiltAngle} className="range text-blue-300 [--range-bg:gray] [--range-thumb:blue] [--range-fill:0]" onChange={(e) => setTiltAngle(e.target.value)} />
 
             <h3>Azimuth Angle</h3>
-            <input type="range" min={0} max="90" value="90" className="range text-blue-300 [--range-bg:gray] [--range-thumb:blue] [--range-fill:0]" />
+            <input type="range" min={0} max="360" value={azimuthAngle} className="range text-blue-300 [--range-bg:gray] [--range-thumb:blue] [--range-fill:0]" onChange={(e) => setAzimuthAngle(e.target.value)} />
 
             <h3>Weather Condition</h3>
             <div className="join">
@@ -144,14 +165,14 @@ function SolarModeling() {
             {/* Add content for the middle section here */}
             <h3 className='text-3xl font-bold'>Monthly Power Output</h3>
             <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={chartData}>
+              <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="timestamp" />
+                <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
-              </LineChart>
+                <Bar dataKey="totalPower" fill="#8884d8" />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
@@ -166,19 +187,19 @@ function SolarModeling() {
             <fieldset className="fieldset flex flex-row">  
               <div>
                 <legend className="fieldset-legend">Starting From</legend>
-                <input type="date" className="input"/>
+                <input type="date" className="input" value={startingTime} onChange={(e) => setStartingTime(e.target.value)} />
               </div>
               <div>
                 <legend className="fieldset-legend">to</legend>
-                <input type="date" className="input"/>
+                <input type="date" className="input" value={endingTime} onChange={(e) => setEndingTime(e.target.value)} />
               </div>
             </fieldset>
             <legend className="fieldset-legend">Frequency</legend>
-            <select defaultValue="Server location" className="select select-neutral">
+            <select value={timeFrequency} className="select select-neutral" onChange={(e) => setTimeFrequency(e.target.value)}>
               <option disabled={true}>Frequency</option>
-              <option>Hour</option>
-              <option>Minute</option>
-              <option>Second</option>
+              <option value="h">Hour</option>
+              <option value="m">Minute</option>
+              <option value="s">Second</option>
             </select>
             
             {/* -----------------Advance Settings------------------ */}
@@ -186,56 +207,50 @@ function SolarModeling() {
             <fieldset className="fieldset flex flex-row">
               <div>
                 <legend className="fieldset-legend">Module Database</legend>
-                <select defaultValue="Server location" className="select select-neutral">
+                <select value={moduleDb} className="select select-neutral" onChange={(e) => setModuleDb(e.target.value)}>
                   <option disabled={true}>Panel Type</option>
-                  <option>North America</option>
-                  <option>EU west</option>
-                  <option>South East Asia</option>
+                  <option value="SandiaMod">SandiaMod</option>
+                  <option value="CECMod">CECMod</option>
                 </select>
                 
                 <legend className="fieldset-legend">Inverter Database</legend>
-                <select defaultValue="Server location" className="select select-neutral">
+                <select value={inverterDb} className="select select-neutral" onChange={(e) => setInverterDb(e.target.value)}>
                   <option disabled={true}>Panel Type</option>
-                  <option>North America</option>
-                  <option>EU west</option>
-                  <option>South East Asia</option>
+                  <option value="CECInverter">CECInverter</option>
+                  <option value="OtherInverter">OtherInverter</option>
                 </select>
               </div>
               
               <div>
                 <legend className="fieldset-legend">Module Dataset</legend>
-                <select defaultValue="Server location" className="select select-neutral">
+                <select value={moduleDataset} className="select select-neutral" onChange={(e) => setModuleDataset(e.target.value)}>
                   <option disabled={true}>Panel Type</option>
-                  <option>North America</option>
-                  <option>EU west</option>
-                  <option>South East Asia</option>
+                  <option value="Canadian_Solar_CS5P_220M___2009_">Canadian_Solar_CS5P_220M___2009_</option>
+                  <option value="OtherModule">OtherModule</option>
                 </select>
                 
                 <legend className="fieldset-legend">Inverter Dataset</legend>
-                <select defaultValue="Server location" className="select select-neutral">
+                <select value={inverterDataset} className="select select-neutral" onChange={(e) => setInverterDataset(e.target.value)}>
                   <option disabled={true}>Panel Type</option>
-                  <option>North America</option>
-                  <option>EU west</option>
-                  <option>South East Asia</option>
+                  <option value="ABB__MICRO_0_25_I_OUTD_US_208__208V_">ABB__MICRO_0_25_I_OUTD_US_208__208V_</option>
+                  <option value="OtherInverter">OtherInverter</option>
                 </select>
               </div>
             </fieldset>
 
             <div>
               <legend className="fieldset-legend">Module Temperature</legend>
-              <select defaultValue="Server location" className="select select-neutral">
+              <select value={tempModel} className="select select-neutral" onChange={(e) => setTempModel(e.target.value)}>
                 <option disabled={true}>Panel Type</option>
-                <option>North America</option>
-                <option>EU west</option>
-                <option>South East Asia</option>
+                <option value="sapm">sapm</option>
+                <option value="otherTempModel">otherTempModel</option>
               </select>
               
               <legend className="fieldset-legend">Temperature Dataset</legend>
-              <select defaultValue="Server location" className="select select-neutral">
+              <select value={tempType} className="select select-neutral" onChange={(e) => setTempType(e.target.value)}>
                 <option disabled={true}>Panel Type</option>
-                <option>North America</option>
-                <option>EU west</option>
-                <option>South East Asia</option>
+                <option value="open_rack_glass_glass">open_rack_glass_glass</option>
+                <option value="otherTempType">otherTempType</option>
               </select>
             </div>
 
