@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .utils.solar_calc import pv_simulation
+from .serializers import ACOutputSerializer
 # Create your views here.
 
 @api_view(['POST'])
@@ -36,9 +37,17 @@ def solar_simulation_api(request):
             )
         
         ac_output = result.ac
+
+        # Convert the pandas Series to a list of dictionaries
+        ac_output_list = [{"timestamp": k, "value": v} for k, v in ac_output.items()]
+
+        # Serialize the data
+        serializer = ACOutputSerializer(ac_output_list, many=True)
+        
+        return Response({"ac_output": serializer.data}, status=200)
         
 
-        return Response({"ac_output": ac_output.tolist()}, status=200)
+        return Response({"ac_output": ac_output}, status=200)
 
     except Exception as e:
         return Response({"error": str(e)}, status=400)
