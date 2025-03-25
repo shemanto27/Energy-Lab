@@ -29,7 +29,7 @@ def solar_simulation_api(request):
         num_of_string = data.get("num_of_string")
         
         
-        result = pv_simulation(
+        result = get_power_output(
             latitude, longitude, altitude, time_zone, module_db, inverter_db,
             temp_model, temp_type, module_dataset, inverter_dataset,
             tilt_angle, azimuth_angle, starting_time, ending_time, time_frequency,

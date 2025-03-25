@@ -1,15 +1,20 @@
-import React from 'react'
-import logo from '../assets/images/logo.png'
-import solar_wind from '../assets/images/solar-wind.jpg'
+import React from 'react';
+import logo from '../assets/images/logo.png';
+import solar_wind from '../assets/images/solar-wind.jpg';
 import { FaSolarPanel } from "react-icons/fa6";
 import { GiWindTurbine } from "react-icons/gi";
 import { FaWater } from "react-icons/fa";
-import laptop from '../assets/images/laptop.webp'
+import laptop from '../assets/images/laptop.webp';
 import love from '../assets/images/love.webp'
 import { MdHeatPump } from "react-icons/md";
-import open_source_logo from '../assets/images/open-source-logo.webp'
+import open_source_logo from '../assets/images/open-source-logo.webp';
+
+import { useNavigate } from 'react-router-dom';
 
 function Home() {
+
+  const navigate = useNavigate();
+
   return (
     <>
     {/* Navbar */}
@@ -27,7 +32,7 @@ function Home() {
                 <details>
                 <summary className='btn bg-[#00A86B] text-white'>Start Simulation</summary>
                 <ul className="bg-base-100 rounded-t-none p-2">
-                    <li><a>Link 1</a></li>
+                    <li><a href='/solar-pv'>Solar PV</a></li>
                     <li><a>Link 2</a></li>
                 </ul>
                 </details>
