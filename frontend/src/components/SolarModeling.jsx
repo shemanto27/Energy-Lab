@@ -65,9 +65,9 @@ function SolarModeling() {
     };
 
     const formDataObject = {
-      latitude: latitude,
-      longitude: longitude,
-      altitude: altitude,
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      altitude: parseFloat(altitude),
       time_zone: timeZone,
       module_db: moduleDb,
       inverter_db: inverterDb,
@@ -75,13 +75,13 @@ function SolarModeling() {
       temp_type: tempType,
       module_dataset: moduleDataset,
       inverter_dataset: inverterDataset,
-      tilt_angle: tiltAngle,
-      azimuth_angle: azimuthAngle,
+      tilt_angle: parseFloat(tiltAngle),
+      azimuth_angle: parseFloat(azimuthAngle),
       starting_time: startingTime,
       ending_time: endingTime,
       time_frequency: timeFrequency,
-      num_of_panel_per_string: numOfPanelPerString,
-      num_of_string: numOfString
+      num_of_panel_per_string: parseInt(numOfPanelPerString, 10),
+      num_of_string: parseInt(numOfString, 10)
     };
 
     try {
@@ -108,12 +108,13 @@ function SolarModeling() {
                 <legend className="fieldset-legend">Altitude</legend>
                 <input type="text" className="input" placeholder="Altitude" value={altitude} onChange={(e) => setAltitude(e.target.value)} />
                 
-                <legend className="fieldset-legend">Timezone</legend>
+                <legend className="fieldset-legend">Timezone (UTC)</legend>
                 <select value={timeZone} className="select select-neutral" onChange={(e) => setTimeZone(e.target.value)}>
                   <option disabled={true}>Timezone</option>
                   <option value="US/Mountain">US/Mountain</option>
                   <option value="US/Pacific">US/Pacific</option>
                   <option value="US/Central">US/Central</option>
+                  <option value="Asia/Dhaka">Asia/Dhaka</option>
                 </select>
               </div>
               
@@ -141,9 +142,11 @@ function SolarModeling() {
             </fieldset>
 
             <h3>Tilt Angle</h3>
+            <p>{tiltAngle}</p>
             <input type="range" min={0} max="90" value={tiltAngle} className="range text-blue-300 [--range-bg:gray] [--range-thumb:blue] [--range-fill:0]" onChange={(e) => setTiltAngle(e.target.value)} />
 
             <h3>Azimuth Angle</h3>
+            <p>{azimuthAngle}</p>
             <input type="range" min={0} max="360" value={azimuthAngle} className="range text-blue-300 [--range-bg:gray] [--range-thumb:blue] [--range-fill:0]" onChange={(e) => setAzimuthAngle(e.target.value)} />
 
             <h3>Weather Condition</h3>
@@ -159,10 +162,11 @@ function SolarModeling() {
       </section>
 
       {/* Middle Section */}
+      {/* Power Plot */}
       <section className="flex-grow mx-4">
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body">
-            {/* Add content for the middle section here */}
+             {/* Add content for the middle section here */}
             <h3 className='text-3xl font-bold'>Monthly Power Output</h3>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart data={monthlyData}>
@@ -174,11 +178,39 @@ function SolarModeling() {
                 <Bar dataKey="totalPower" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-      </section>
+            </div>
+            </div>
 
-      {/* Right Side Section */}
+          <div className="flex flex-row justify-center gap-2 my-4">
+            {/* Avg Power Per Month */}
+            <div className="card bg-base-100 shadow-sm">
+              <div className="card-body">
+                
+                <h3 className='text-lg'>Avg. Power/Month</h3>
+                <p className="text-2xl font-bold">
+                  {monthlyData.length > 0 ? 
+                    (monthlyData.reduce((sum, data) => sum + data.totalPower, 0) / monthlyData.length).toFixed(2) + " KW" 
+                    : "No data available"}
+                </p>
+              </div>
+            </div>
+
+            {/* Total Power Generated */}
+            <div className="card bg-base-100 shadow-sm">
+              <div className="card-body">
+                <h3 className='text-lg'>Total Power Generated from {startingTime} to {endingTime}</h3>
+                <p className="text-2xl font-bold">
+                  {monthlyData.length > 0 ? 
+                    (monthlyData.reduce((sum, data) => sum + data.totalPower, 0) / monthlyData.length).toFixed(2) + " KW" 
+                    : "No data available"}
+                </p>
+              </div>
+            </div>
+            </div>
+
+            </section>
+
+            {/* Right Side Section */}
       <section>
         <div className="card w-96 bg-base-100 shadow-sm">
           <div className="card-body">
@@ -208,16 +240,17 @@ function SolarModeling() {
               <div>
                 <legend className="fieldset-legend">Module Database</legend>
                 <select value={moduleDb} className="select select-neutral" onChange={(e) => setModuleDb(e.target.value)}>
-                  <option disabled={true}>Panel Type</option>
+                  <option disabled={true}>Module Dataset</option>
                   <option value="SandiaMod">SandiaMod</option>
                   <option value="CECMod">CECMod</option>
                 </select>
                 
                 <legend className="fieldset-legend">Inverter Database</legend>
                 <select value={inverterDb} className="select select-neutral" onChange={(e) => setInverterDb(e.target.value)}>
-                  <option disabled={true}>Panel Type</option>
+                  <option disabled={true}>Inverter Database</option>
                   <option value="CECInverter">CECInverter</option>
-                  <option value="OtherInverter">OtherInverter</option>
+                  <option value="SandiaInverter">SandiaInverter</option>
+                  <option value="ADRInverter">ADRInverter</option>
                 </select>
               </div>
               
@@ -243,18 +276,23 @@ function SolarModeling() {
               <select value={tempModel} className="select select-neutral" onChange={(e) => setTempModel(e.target.value)}>
                 <option disabled={true}>Panel Type</option>
                 <option value="sapm">sapm</option>
-                <option value="otherTempModel">otherTempModel</option>
+                <option value="pvsyst">pvsyst</option>
+                <option value="faiman">faiman</option>
+                <option value="fuentes">fuentes</option>
+                <option value="noct_sam">noct_sam</option>
               </select>
               
-              <legend className="fieldset-legend">Temperature Dataset</legend>
+              <legend className="fieldset-legend">Temperature Model Parameters</legend>
               <select value={tempType} className="select select-neutral" onChange={(e) => setTempType(e.target.value)}>
-                <option disabled={true}>Panel Type</option>
+                <option disabled={true}>select</option>
                 <option value="open_rack_glass_glass">open_rack_glass_glass</option>
-                <option value="otherTempType">otherTempType</option>
+                <option value="close_mount_glass_glass">close_mount_glass_glass</option>
+                <option value="open_rack_glass_polymer">open_rack_glass_polymer</option>
+                <option value="insulated_back_glass_polymer">insulated_back_glass_polymer</option>
               </select>
             </div>
 
-            <button className="btn btn-success text-white">Download Report</button>
+            <button className="btn btn-neutral text-white">Download Report</button>
           </div>
         </div>
       </section>

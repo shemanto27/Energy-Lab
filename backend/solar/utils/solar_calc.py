@@ -4,6 +4,8 @@ from pvlib.pvsystem import PVSystem
 from pvlib.modelchain import ModelChain
 from pvlib.temperature import TEMPERATURE_MODEL_PARAMETERS
 import pandas as pd
+from pvlib import pvsystem
+import numpy as np
 
 # Power Output Calculation
 def get_power_output(latitude,
@@ -205,31 +207,13 @@ def get_iv_curve_sdm(effective_irradiance,
                     temp_ref=25,
                     method='lambertw'):
     """
-    sdm stands for "Single Diode Model
-    It takes detailed module parameters and calculates the I-V curve using the De Soto model.
-    -----------
-    input params:
-    effective_irradiance (numeric) – Effective irradiance in W/m^2.
-    temp_cell (numeric) – Cell temperature in C.
-    alpha_sc (numeric) – The short-circuit current temperature coefficient of the module in units of A/C.
-    a_ref (numeric) – The product of the number of cells in series (Ns), the cell area (A), and the efficiency of light capture of the module (Eff) in units of m^2.
-    I_L_ref (numeric) – Light-generated current (or photocurrent) in amperes under reference conditions. This parameter is related to the rated power of the module, and is used to determine the reference current in the module’s I-V curve. In amperes.
-    I_o_ref (numeric) – Diode saturation current in amperes under reference conditions. This can be derived from the reference module efficiency using calcparams_desoto. In amperes.
-    R_sh_ref (numeric) – Shunt resistance under reference conditions in ohms. This can be derived from the reference module efficiency using calcparams_desoto. In ohms.
-    R_s (numeric) – Series resistance in ohms.
-    EgRef (float) – The energy bandgap at reference temperature in units of eV. 1.121 eV for crystalline silicon. EgRef must be >0. For parameters from the SAM CEC module database, EgRef=1.121 is implicit for all cell types in the parameter estimation algorithm used by NREL.
-    dEgdT (float) – The temperature dependence of the energy bandgap at reference conditions in units of 1/K. May be either a scalar value (e.g. -0.0002677 as in [1]) or a DataFrame (this may be useful if dEgdT is a modeled as a function of temperature). For parameters from the SAM CEC module database, dEgdT=-0.0002677 is implicit for all cell types in the parameter estimation algorithm used by NREL.
-    irrad_ref (float, default 1000) – Reference irradiance in W/m^2.
-    temp_ref (float, default 25) – Reference cell temperature in C.
-    method (str) – Method to use 'lambertw', 'newton', or 'brentq'
-    -----------
-    Returns:
-        dict: {
-            'iv_curve': List[{'voltage': V, 'current': I}], 
-            'keypoints': {'i_sc', 'v_oc', 'i_mp', 'v_mp', 'p_mp'}
-        }
-
+    Calculates I-V curve for Photovoltaic Module using Single Diode Model
     """
+    # Ensure numpy and pandas are imported
+    import numpy as np
+    import pandas as pd
+    from pvlib import pvsystem
+
     # Get the parameters for the Single Diode Equation
     sde_params = get_sde_params(effective_irradiance = effective_irradiance,
                                 temp_cell = temp_cell,
@@ -252,45 +236,37 @@ def get_iv_curve_sdm(effective_irradiance,
                                 nNsVth = sde_params['nNsVth'],
                                 method = method)
 
-    # calculate range of voltages from 0 V to V_oc (open circuit voltage)
-    # Changed how curve_info is calculated, using sde_params keys that match singlediode's expected arguments
-    curve_info = pvsystem.singlediode(
-        photocurrent=sde_params['IL'],
-        saturation_current=sde_params['I0'],
-        resistance_series=sde_params['Rs'],
-        resistance_shunt=sde_params['Rsh'],
-        nNsVth=sde_params['nNsVth'],
-        method='lambertw'
-    )  
-    v = pd.DataFrame(np.linspace(0., curve_info['v_oc'], 100))
+    # Calculate range of voltages from 0 V to V_oc (open circuit voltage)
+    # Ensure v is a numpy array or Series
+    v = np.linspace(0., sde_output['v_oc'], 100)
 
-    # calculate the current at each voltage
-    # Pass necessary parameters directly instead of unpacking sde_output
-    i = pd.DataFrame(pvsystem.i_from_v(
+    # Calculate the current at each voltage
+    # Use numpy methods to ensure type consistency
+    i = pvsystem.i_from_v(
         resistance_shunt=sde_params['Rsh'], 
         resistance_series=sde_params['Rs'], 
         nNsVth=sde_params['nNsVth'], 
-        voltage=v[0],  # Pass the first column of the DataFrame
+        voltage=v,  # Pass numpy array directly
         saturation_current=sde_params['I0'], 
         photocurrent=sde_params['IL'],
         method='lambertw'
-    ))
+    )
 
-    # Combine the voltage and current into a DataFrame
-    iv_curve = pd.DataFrame({'voltage': v[0], 'current': i[0]})
+    # Combine the voltage and current into a list of dictionaries
+    iv_curve = [{'voltage': float(voltage), 'current': float(current)} for voltage, current in zip(v, i)]
 
     # Extract key points from the Single Diode Equation output
     keypoints = {
-        'i_sc': sde_output['i_sc'],
-        'v_oc': sde_output['v_oc'],
-        'i_mp': sde_output['i_mp'],
-        'v_mp': sde_output['v_mp'],
-        'p_mp': sde_output['p_mp']
+        'i_sc': float(sde_output['i_sc']),
+        'v_oc': float(sde_output['v_oc']),
+        'i_mp': float(sde_output['i_mp']),
+        'v_mp': float(sde_output['v_mp']),
+        'p_mp': float(sde_output['p_mp'])
     }
 
     # Combine the IV curve and key points into a single result
     result = {
-        'iv_curve': iv_curve.to_dict(orient='records'),
+        'iv_curve': iv_curve,
         'keypoints': keypoints
     }
 
