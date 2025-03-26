@@ -21,7 +21,7 @@ function Home() {
         <section>
     <div className="navbar bg-base-100 shadow-sm mb-2 h-2">
         <div className="flex-1 items-center justify-center">
-            <div className="btn btn-ghost text-3xl font-bold text-[#00A86B] border-2 border-red-600 p-5"><img src={logo} alt="energylab logo" className='w-10' /><p>EnergyLab</p></div>
+            <div className="btn btn-ghost text-3xl font-bold text-[#00A86B] p-5"><img src={logo} alt="energylab logo" className='w-10' /><p>EnergyLab</p></div>
         </div>
         <div className="flex-none">
             <ul className="menu menu-horizontal px-1 flex justify-center items-center font-bold text-[#151f2d]">
@@ -105,7 +105,7 @@ function Home() {
     <h1 className='text-3xl font-bold'>EnergyLab</h1>
     </div>
     <p>
-      Developed by Bidut Sharkar Shemanto
+      Developed by <a href="https://www.linkedin.com/in/shemanto/" target="_blank" rel="noopener noreferrer">Bidut Sharkar Shemanto</a>
       <br />
       we are fully open-source
     </p>
@@ -135,7 +135,9 @@ function Home() {
     <footer className="footer sm:footer-horizontal footer-center bg-[#111828] text-base-content p-4 border-t-3 border-white">
         <aside>
           <p className='text-white flex items-center justify-center flex-wrap'>
-            Copyright © {new Date().getFullYear()} - Build by Shemanto Sharkar with 
+            Copyright © {new Date().getFullYear()} - Build by 
+            <span className='mx-2'><a href="https://www.linkedin.com/in/shemanto/" target="_blank" className='italic underline'>Shemanto Sharkar</a></span> 
+            with 
             <span className='flex items-center justify-center'>
             <img src={laptop} alt="laptop" className='w-5 mx-1' /> + 
             <img src={love} alt="love" className='w-5 mx-1'/>

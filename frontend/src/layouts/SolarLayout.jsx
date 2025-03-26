@@ -8,8 +8,8 @@ function SolarLayout() {
   const navigate = useNavigate();
 
   const drawerOptions = [
-    { name: 'PV Power', path: '/solar' },
-    { name: 'IV Modeling', path: '/solar/iv-modeling' },
+    { name: 'PV Power', path: '/solar-pv' },
+    { name: 'IV Modeling', path: '/solar-pv/iv-modeling-sdm' },
     { name: 'Shading Analysis', path: '/solar/shading' },
   ];
 
@@ -18,8 +18,8 @@ function SolarLayout() {
       <Navbar />
       <div className="flex flex-grow">
         <Drawer options={drawerOptions} onSelect={(path) => navigate(path)} />
-        <main className="flex-grow p-4">
-          <Outlet />
+        <main className="drawer-content justify-center items-center flex-grow">
+          <Outlet/>
         </main>
       </div>
       <Footer />

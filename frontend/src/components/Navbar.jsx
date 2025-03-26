@@ -2,11 +2,11 @@ import React from 'react';
 import { TiThMenu } from "react-icons/ti";
 import { FaInfoCircle } from "react-icons/fa";
 
-function Navbar({ onSelectAnalysis }) {
+function Navbar() {
     return (
         <>
             <div className="navbar bg-base-100 shadow-sm mb-5">
-                <label htmlFor="my-drawer" className="btn btn-primary drawer-button mr-2"><TiThMenu /></label>
+                <label htmlFor="my-drawer" className="btn btn-ghost border-2 border-base-300 drawer-button mr-2"><TiThMenu /></label>
                 <a className="btn btn-ghost text-xl">Energy Lab: Solar</a>
                 <sup className='text-rose-600 flex justify-center items-center text-sm gap-1 btn' onClick={() => document.getElementById('my_modal_3').showModal()}><FaInfoCircle />Beta Version</sup>
 
