@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-function SolarModeling() {
+function PVPower() {
   const API_URL = "http://localhost:8000/api/solar/";
 
   const [latitude, setLatitude] = useState(32.2217);
@@ -300,4 +300,4 @@ function SolarModeling() {
   )
 }
 
-export default SolarModeling;
+export default PVPower;

@@ -1,6 +1,6 @@
 import React from 'react'
 
-function GoogleMap() {
+function IVModelingSDM() {
   return (
     <div>
       
@@ -8,4 +8,4 @@ function GoogleMap() {
   )
 }
 
-export default GoogleMap
+export default IVModelingSDM

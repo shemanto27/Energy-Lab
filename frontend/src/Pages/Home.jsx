@@ -3,7 +3,7 @@ import logo from '../assets/images/logo.png';
 import solar_wind from '../assets/images/solar-wind.jpg';
 import { FaSolarPanel } from "react-icons/fa6";
 import { GiWindTurbine } from "react-icons/gi";
-import { FaWater } from "react-icons/fa";
+
 import laptop from '../assets/images/laptop.webp';
 import love from '../assets/images/love.webp'
 import { MdHeatPump } from "react-icons/md";
@@ -19,9 +19,9 @@ function Home() {
     <>
     {/* Navbar */}
         <section>
-    <div className="navbar bg-base-100 shadow-sm">
+    <div className="navbar bg-base-100 shadow-sm mb-2 h-2">
         <div className="flex-1 items-center justify-center">
-            <a className="btn btn-ghost text-3xl font-bold text-[#00A86B]"><img src={logo} alt="energylab logo" className='w-13' />EnergyLab</a>
+            <div className="btn btn-ghost text-3xl font-bold text-[#00A86B] border-2 border-red-600 p-5"><img src={logo} alt="energylab logo" className='w-10' /><p>EnergyLab</p></div>
         </div>
         <div className="flex-none">
             <ul className="menu menu-horizontal px-1 flex justify-center items-center font-bold text-[#151f2d]">
@@ -66,8 +66,9 @@ function Home() {
 
     {/* Card Section  */}
         <section className='bg-base-200 flex flex-wrap justify-center items-center gap-2 py-10'>
+
         {/* solar card */}
-        <div className="card w-96 bg-base-100 card-xs shadow-sm border-2 border-white hover:border-[#00A86B] hover:text-[#00A86B] cursor-pointer">
+        <div className="card w-96 bg-base-100 card-xs shadow-sm border-2 border-white hover:border-[#00A86B] hover:text-[#00A86B] cursor-pointer" onClick={() => navigate('/solar-pv')}>
         <div className="card-body">
             <FaSolarPanel className='text-5xl'/>
             <h2 className="card-title text-xl">Solar Photo Voltic</h2>
@@ -76,20 +77,11 @@ function Home() {
         </div>
 
         {/* wind card */}
-        <div className="card w-96 bg-base-100 card-xs shadow-sm border-2 border-white hover:border-[#00A86B] hover:text-[#00A86B] cursor-pointer">
+        <div className="card w-96 bg-base-100 card-xs shadow-sm border-2 border-white hover:border-[#00A86B] hover:text-[#00A86B] cursor-pointer" onClick={() => navigate('/wind-turbine')}>
         <div className="card-body">
             <GiWindTurbine className='text-5xl'/>
             <h2 className="card-title text-xl">Wind Turbine</h2>
             <p className='text-sm'>A wind turbine is a device that converts the kinetic energy of wind into electricity, using blades to capture the wind's energy and turn a rotor connected to a generator.</p>
-        </div>
-        </div>
-
-        {/* hydro card */}
-        <div className="card w-96 bg-base-100 card-xs shadow-sm border-2 border-white hover:border-[#00A86B] hover:text-[#00A86B] cursor-pointer">
-        <div className="card-body">
-            <FaWater className='text-5xl'/>
-            <h2 className="card-title text-xl">Hydropower Plant</h2>
-            <p className='text-sm'>At hydropower plants water flows through a pipe then pushes against and turns blades in a turbine that spin to power a generator to produce electricity.</p>
         </div>
         </div>
 
