@@ -43,6 +43,7 @@ EXTERNAL_APPS = [
     'rest_framework',
     'corsheaders',
     'solar',
+    'windturbine',
 ]
 
 INSTALLED_APPS += EXTERNAL_APPS
