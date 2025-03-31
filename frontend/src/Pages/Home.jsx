@@ -6,7 +6,7 @@ import { GiWindTurbine } from "react-icons/gi";
 
 import laptop from '../assets/images/laptop.webp';
 import love from '../assets/images/love.webp'
-import { MdHeatPump } from "react-icons/md";
+
 import open_source_logo from '../assets/images/open-source-logo.webp';
 
 import { useNavigate } from 'react-router-dom';
@@ -82,15 +82,6 @@ function Home() {
             <GiWindTurbine className='text-5xl'/>
             <h2 className="card-title text-xl">Wind Turbine</h2>
             <p className='text-sm'>A wind turbine is a device that converts the kinetic energy of wind into electricity, using blades to capture the wind's energy and turn a rotor connected to a generator.</p>
-        </div>
-        </div>
-
-        {/* Heat Pump Card  */}
-        <div className="card w-96 bg-base-100 card-xs shadow-sm border-2 border-white hover:border-[#00A86B] hover:text-[#00A86B] cursor-pointer">
-        <div className="card-body">
-            <MdHeatPump className='text-5xl'/>
-            <h2 className="card-title text-xl">Heat Pump</h2>
-            <p className='text-sm'>A heat pump is a device that uses electricity to transfer heat, rather than generate it, making it an energy-efficient alternative to traditional heating and cooling systems.</p>
         </div>
         </div>
         </section>
