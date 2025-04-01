@@ -7,7 +7,7 @@ function Navbar() {
         <>
             <div className="navbar bg-base-100 shadow-sm mb-5">
                 <label htmlFor="my-drawer" className="btn btn-ghost border-2 border-base-300 drawer-button mr-2"><TiThMenu /></label>
-                <a className="btn btn-ghost text-xl">Energy Lab: Solar</a>
+                <a className="btn btn-ghost text-xl" href='/'>Energy Lab</a>
                 <sup className='text-rose-600 flex justify-center items-center text-sm gap-1 btn' onClick={() => document.getElementById('my_modal_3').showModal()}><FaInfoCircle />Beta Version</sup>
 
                 <dialog id="my_modal_3" className="modal">

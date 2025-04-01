@@ -4,8 +4,6 @@ import solar_wind from '../assets/images/solar-wind.jpg';
 import { FaSolarPanel } from "react-icons/fa6";
 import { GiWindTurbine } from "react-icons/gi";
 
-import laptop from '../assets/images/laptop.webp';
-import love from '../assets/images/love.webp'
 
 import open_source_logo from '../assets/images/open-source-logo.webp';
 
@@ -28,15 +26,6 @@ function Home() {
             <li><a>Simulators</a></li>
             <li><a>About</a></li>
             <li><a>Contact</a></li>
-            <li>
-                <details>
-                <summary className='btn bg-[#00A86B] text-white'>Start Simulation</summary>
-                <ul className="bg-base-100 rounded-t-none p-2">
-                    <li><a href='/solar-pv'>Solar PV</a></li>
-                    <li><a>Link 2</a></li>
-                </ul>
-                </details>
-            </li>
             <li><a href="https://github.com/shemanto27/Energy-Lab" target="_blank" rel="noopener noreferrer"><img className='w-40' src={open_source_logo} alt="" /></a></li>
             </ul>
         </div>
@@ -56,8 +45,8 @@ function Home() {
             <p className="py-6 text-[#111828]">
                 Detailed analysis of energy systems to help you make informed decisions.Calculate the energy output of your solar panels, wind turbines, and more based on your location, weather, and system configuration.
             </p>
-            <button className='btn bg-[#00A86B] text-white mr-3'>Start Simulation</button>
-            <button className='btn bg-white text-[#00A86B] border-[#00A86B]'>Explore Simulation</button>
+            <button className='btn bg-[#00A86B] text-white mr-3' onClick={() => navigate('/solar-pv')}>Start Simulation</button>
+            <button className='btn bg-white text-[#00A86B] border-[#00A86B]' onClick={() => navigate('/solar-pv')}>Explore Simulation</button>
             </div>
         </div>
         </div>
@@ -123,20 +112,21 @@ function Home() {
   </nav>
 </footer>
 
-    <footer className="footer sm:footer-horizontal footer-center bg-[#111828] text-base-content p-4 border-t-3 border-white">
+<footer className="footer sm:footer-horizontal footer-center bg-[#111828] text-base-content p-4 border-t-3 border-white">
         <aside>
           <p className='text-white flex items-center justify-center flex-wrap'>
             Copyright © {new Date().getFullYear()} - Build by 
             <span className='mx-2'><a href="https://www.linkedin.com/in/shemanto/" target="_blank" className='italic underline'>Shemanto Sharkar</a></span> 
             with 
-            <span className='flex items-center justify-center'>
-            <img src={laptop} alt="laptop" className='w-5 mx-1' /> + 
-            <img src={love} alt="love" className='w-5 mx-1'/>
+            <span className='flex items-center justify-center ml-1'>
+              💻 + ☕
+            {/* <img src={laptop} alt="laptop" className='w-5 mx-1' /> +  */}
+            {/* <img src={love} alt="love" className='w-5 mx-1'/> */}
             </span>
           </p>
         </aside>
       </footer>
-    </section>
+  </section>
 
     </>
   )

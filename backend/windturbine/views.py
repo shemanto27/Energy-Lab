@@ -3,8 +3,11 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+import os
+import tempfile
 
 from .utils.wind_calc import get_power_output
+from .serializers import *
 
 @api_view(['POST'])
 def wind_power_simulation_api(request):
@@ -42,8 +45,6 @@ def wind_power_simulation_api(request):
             raise ValueError(f"Failed to load data from Google Sheet: {str(e)}")
 
         # Save the data to a temporary CSV file
-        import os
-        import tempfile
         temp_dir = tempfile.gettempdir()
         temp_file_path = os.path.join(temp_dir, "temp_wind_data.csv")
         df.to_csv(temp_file_path, index=False)
@@ -64,26 +65,53 @@ def wind_power_simulation_api(request):
                 hub_height=hub_height
             )
             
-            # Convert the power_output Series to a JSON-serializable format
+            # Prepare data for serialization
+            data_for_serialization = {}
+            
+            # Handle power output time series
             if 'power_output' in result and hasattr(result['power_output'], 'index'):
-                # Convert timestamps to strings and values to list
-                power_data = {
+                data_for_serialization['power_output'] = {
                     'timestamps': [str(idx) for idx in result['power_output'].index],
                     'values': result['power_output'].values.tolist()
                 }
             else:
-                power_data = str(result['power_output'])
-            
-            # Create a serializable result
-            serializable_result = {
-                'power_output': power_data,
-                'turbine_info': {
+                # Handle case where power_output is not a time series
+                # This is a fallback that might need adjustment based on your needs
+                data_for_serialization['power_output'] = {
+                    'timestamps': [],
+                    'values': []
+                }
+
+            # Handle turbine info and curves
+            if 'power_plant' in result:
+                power_plant = result['power_plant']
+                turbine_info = {
                     'type': turbine_type,
                     'hub_height': hub_height
                 }
-            }
+                
+                # Add power curve if available
+                if hasattr(power_plant, 'power_curve') and power_plant.power_curve is not None:
+                    turbine_info['power_curve'] = {
+                        'wind_speed': power_plant.power_curve.wind_speed.tolist(),
+                        'value': power_plant.power_curve.value.tolist()
+                    }
+                
+                # Add power coefficient curve if available
+                if hasattr(power_plant, 'power_coefficient_curve') and power_plant.power_coefficient_curve is not None:
+                    turbine_info['power_coefficient_curve'] = {
+                        'wind_speed': power_plant.power_coefficient_curve.wind_speed.tolist(),
+                        'value': power_plant.power_coefficient_curve.value.tolist()
+                    }
+                
+                data_for_serialization['turbine_info'] = turbine_info
+
+            # Use the serializer
+            serializer = WindPowerResultSerializer(data=data_for_serialization)
+            serializer.is_valid(raise_exception=True)
             
-            return Response(serializable_result, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
         finally:
             # Clean up temporary file
             if os.path.exists(temp_file_path):

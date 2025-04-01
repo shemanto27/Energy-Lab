@@ -10,7 +10,7 @@ function SolarLayout() {
   const drawerOptions = [
     { name: 'PV Power', path: '/solar-pv' },
     { name: 'IV Modeling', path: '/solar-pv/iv-modeling-sdm' },
-    { name: 'Shading Analysis', path: '/solar/shading' },
+    { name: 'Shading Analysis', path: '/solar-pv/shading' },
   ];
 
   return (

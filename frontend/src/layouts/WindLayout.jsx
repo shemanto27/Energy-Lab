@@ -9,7 +9,7 @@ function WindLayout() {
 
   const drawerOptions = [
     { name: 'Wind Turbine', path: '/wind-turbine' },
-    { name: 'Blade Design', path: '/wind-turbine/wind-farm' },
+    { name: 'Wind Farm', path: '/wind-turbine/wind-farm' },
   ];
 
   return (

@@ -1,6 +1,6 @@
 import React from 'react'
 
-function WindFarm() {
+function Shading() {
   return (
     <div className='flex justify-center items-center gap-2'>
     <div className="inline-grid *:[grid-area:1/1]">
@@ -11,4 +11,4 @@ function WindFarm() {
   )
 }
 
-export default WindFarm
+export default Shading

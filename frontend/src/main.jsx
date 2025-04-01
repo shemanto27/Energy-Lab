@@ -8,6 +8,7 @@ import Home from './Pages/Home';
 import SolarLayout from './layouts/SolarLayout';
 import PVPower from './Pages/Solar/PVPower';
 import IVModelingSDM from './Pages/Solar/IVModelingSDM';
+import Shading from './Pages/Solar/Shading';
 
 
 import WindLayout from './layouts/WindLayout';
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
     children: [
     { index:true, element: <PVPower /> }, // Default route
     {path: 'iv-modeling-sdm', element: <IVModelingSDM />},
+    {path: 'shading', element: <Shading />}, 
   ],
   },
 

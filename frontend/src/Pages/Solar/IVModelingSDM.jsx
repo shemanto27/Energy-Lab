@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer, Label } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, Label } from 'recharts';
 
 function IVModelingSDM() {
   const API_URL = 'http://localhost:8000/api/i-v-curve-sdm/';
@@ -48,6 +48,56 @@ function IVModelingSDM() {
     } catch (error) {
       console.error('Error:', error.response ? error.response.data : error.message);
     }
+  };
+
+  const IVCurveVisualization = ({ ivData, keypoints }) => {
+    const combinedData = ivData?.map(point => ({
+      ...point,
+      power: (point.voltage * point.current).toFixed(2)
+    })) || [];
+
+    return (
+      <div className="w-full bg-white p-4 rounded-lg shadow">
+        <h3 className="text-xl font-bold mb-4">Solar Panel I-V and P-V Curves</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={combinedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="voltage" type="number" domain={[0, 'dataMax']}>
+              <Label value="Voltage (V)" offset={-5} position="insideBottom" />
+            </XAxis>
+            <YAxis yAxisId="left" type="number" domain={[0, 'dataMax']}>
+              <Label value="Current (A)" angle={-90} position="insideLeft" />
+            </YAxis>
+            <YAxis yAxisId="right" orientation="right" type="number" domain={[0, 'dataMax']}>
+              <Label value="Power (W)" angle={90} position="insideRight" />
+            </YAxis>
+            <Tooltip formatter={(value, name) => [parseFloat(value).toFixed(2), name]} />
+            <Legend />
+            <Line yAxisId="left" type="monotone" dataKey="current" name="Current (A)" stroke="#0047AB" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+            <Line yAxisId="right" type="monotone" dataKey="power" name="Power (W)" stroke="#FF7300" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+            {keypoints && (
+              <>
+                <ReferenceLine yAxisId="left" x={0} y={keypoints.i_sc} stroke="#0047AB" strokeDasharray="3 3">
+                  <Label value={`Isc = ${keypoints.i_sc.toFixed(2)} A`} position="insideTopRight" fill="#0047AB" fontWeight="bold" />
+                </ReferenceLine>
+                <ReferenceLine yAxisId="left" x={keypoints.v_oc} y={0} stroke="#0047AB" strokeDasharray="3 3">
+                  <Label value={`Voc = ${keypoints.v_oc.toFixed(2)} V`} position="insideBottomLeft" fill="#0047AB" fontWeight="bold" />
+                </ReferenceLine>
+                <ReferenceLine yAxisId="left" x={keypoints.v_mp} stroke="#006400" strokeDasharray="3 3">
+                  <Label value={`Vmp = ${keypoints.v_mp.toFixed(2)} V`} position="insideBottom" fill="#006400" fontWeight="bold" />
+                </ReferenceLine>
+                <ReferenceLine yAxisId="left" y={keypoints.i_mp} stroke="#006400" strokeDasharray="3 3">
+                  <Label value={`Imp = ${keypoints.i_mp.toFixed(2)} A`} position="insideLeft" fill="#006400" fontWeight="bold" />
+                </ReferenceLine>
+                <ReferenceLine yAxisId="right" x={keypoints.v_mp} y={keypoints.p_mp} stroke="#FF7300" strokeDasharray="3 3">
+                  <Label value={`Pmax = ${keypoints.p_mp.toFixed(2)} W`} position="right" fill="#FF7300" fontWeight="bold" />
+                </ReferenceLine>
+              </>
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
   };
 
   return (
@@ -104,111 +154,7 @@ function IVModelingSDM() {
 
       {/* Middle Section */}
       <section className='flex-grow mx-4'>
-        <div className='card bg-base-100 shadow-sm'>
-          <div className='card-body'>
-            <h3 className='text-3xl font-bold'>I-V Curve</h3>
-            <ResponsiveContainer width="80%" height={300}>
-              <LineChart data={ivCurveData} margin={{ top: 20, right: 50, left: 20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="voltage" 
-                  label={{ value: 'Voltage (V)', position: 'insideBottomRight', offset: -5 }} 
-                  type="number" 
-                  domain={[0, keypoints ? keypoints.v_oc + 5 : 40]} 
-                />
-                <YAxis 
-                  label={{ value: 'Current (A)', angle: -90, position: 'insideLeft' }} 
-                  type="number" 
-                  domain={[0, keypoints ? keypoints.i_sc + 2 : 10]} 
-                />
-                <Tooltip />
-
-                {/* Dashed I-V Curve Line */}
-                <Line 
-                  type="monotone" 
-                  dataKey="current" 
-                  stroke="#FF7300" 
-                  strokeDasharray="5 5" 
-                  dot={{ stroke: '#FF7300', strokeWidth: 2 }} 
-                />
-
-                {/* Reference Lines for Important Points */}
-                {keypoints && (
-                  <>
-                    {/* Short Circuit Current (Isc) */}
-                    <ReferenceLine 
-                      x={0} 
-                      y={keypoints.i_sc} 
-                      label={{ value: `Isc = ${keypoints.i_sc.toFixed(2)} A`, position: 'top', offset: 20 }} 
-                      stroke="blue" 
-                      strokeDasharray="3 3" 
-                    />
-
-                    {/* Open Circuit Voltage (Voc) */}
-                    <ReferenceLine 
-                      x={keypoints.v_oc} 
-                      y={0} 
-                      label={{ value: `Voc = ${keypoints.v_oc.toFixed(2)} V`, position: 'bottom', offset: -70 }} 
-                      stroke="red" 
-                      strokeDasharray="3 3" 
-                    />
-
-                    {/* Maximum Power Current (Imp) */}
-                    <ReferenceLine 
-                      x={keypoints.v_mp} 
-                      y={keypoints.i_mp} 
-                      label={{ value: `Imp = ${keypoints.i_mp.toFixed(2)} A`, position: 'top', offset: -20 }} 
-                      stroke="green" 
-                      strokeDasharray="3 3" 
-                    />
-
-                    {/* Maximum Power Voltage (Vmp) */}
-                    <ReferenceLine 
-                      x={keypoints.v_mp} 
-                      label={{ value: `Vmp = ${keypoints.v_mp.toFixed(2)} V`, position: 'top', offset: 5 }} 
-                      stroke="purple" 
-                      strokeDasharray="3 3" 
-                    />
-
-                    {/* Peak Power (Pmp) */}
-                    <ReferenceLine 
-                      x={keypoints.v_mp} 
-                      y={keypoints.i_mp} 
-                      label={{ value: `Pmp = ${keypoints.p_mp.toFixed(2)} W`, position: 'right', offset: 10 }} 
-                      stroke="orange" 
-                      strokeDasharray="3 3" 
-                    />
-                  </>
-                )}
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {keypoints && (
-          <div className='flex flex-row justify-center gap-2 my-4'>
-            <div className='card bg-base-100 shadow-sm'>
-              <div className='card-body'>
-                <h3 className='text-lg'>Key Points</h3>
-                <p>
-                  <strong>Isc:</strong> {keypoints.i_sc.toFixed(2)} A
-                </p>
-                <p>
-                  <strong>Voc:</strong> {keypoints.v_oc.toFixed(2)} V
-                </p>
-                <p>
-                  <strong>Imp:</strong> {keypoints.i_mp.toFixed(2)} A
-                </p>
-                <p>
-                  <strong>Vmp:</strong> {keypoints.v_mp.toFixed(2)} V
-                </p>
-                <p>
-                  <strong>Pmp:</strong> {keypoints.p_mp.toFixed(2)} W
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        <IVCurveVisualization ivData={ivCurveData} keypoints={keypoints} />
       </section>
 
       {/* Right Side Section */}

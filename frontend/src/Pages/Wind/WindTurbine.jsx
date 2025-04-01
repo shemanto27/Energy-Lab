@@ -20,6 +20,7 @@ function WindTurbine() {
   const [powerOutput, setPowerOutput] = useState([]);
   const [powerCurve, setPowerCurve] = useState([]);
   const [powerCoefficientCurve, setPowerCoefficientCurve] = useState([]);
+  const [turbineInfo, setTurbineInfo] = useState(null); // New state for turbine info
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,25 +52,29 @@ function WindTurbine() {
       setPowerOutput(powerOutputData);
 
       // Transform power_curve and power_coefficient_curve if available
-      if (response.data.power_plant?.power_curve) {
-        const powerCurveData = response.data.power_plant.power_curve.wind_speed.map((speed, index) => ({
+      if (response.data.turbine_info?.power_curve) {
+        const powerCurveData = response.data.turbine_info.power_curve.wind_speed.map((speed, index) => ({
           wind_speed: speed,
-          value: response.data.power_plant.power_curve.value[index],
+          value: response.data.turbine_info.power_curve.value[index],
         }));
         setPowerCurve(powerCurveData);
       } else {
         setPowerCurve([]);
       }
 
-      if (response.data.power_plant?.power_coefficient_curve) {
-        const powerCoefficientCurveData = response.data.power_plant.power_coefficient_curve.wind_speed.map((speed, index) => ({
+      if (response.data.turbine_info?.power_coefficient_curve) {
+        const powerCoefficientCurveData = response.data.turbine_info.power_coefficient_curve.wind_speed.map((speed, index) => ({
           wind_speed: speed,
-          value: response.data.power_plant.power_coefficient_curve.value[index],
+          value: response.data.turbine_info.power_coefficient_curve.value[index],
         }));
         setPowerCoefficientCurve(powerCoefficientCurveData);
       } else {
         setPowerCoefficientCurve([]);
       }
+
+      // Set turbine info
+      setTurbineInfo(response.data.turbine_info);
+
     } catch (error) {
       console.error("Error:", error.response ? error.response.data : error.message);
     }
@@ -129,7 +134,7 @@ function WindTurbine() {
 
         <div className="flex flex-row justify-center gap-2 my-4">
           {/* Power Curve */}
-          <div className="card bg-base-100 shadow-sm">
+          <div className="card bg-base-100 shadow-sm flex-1">
             <div className="card-body">
               <h3 className="text-lg">Power Curve</h3>
               <ResponsiveContainer width="100%" height={200}>
@@ -146,7 +151,7 @@ function WindTurbine() {
           </div>
 
           {/* Power Coefficient Curve */}
-          <div className="card bg-base-100 shadow-sm">
+          <div className="card bg-base-100 shadow-sm flex-1">
             <div className="card-body">
               <h3 className="text-lg">Power Coefficient Curve</h3>
               <ResponsiveContainer width="100%" height={200}>
